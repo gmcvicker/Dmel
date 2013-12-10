@@ -6,10 +6,13 @@ color.pal <- brewer.pal(9, "Set1")
 color.pal[6] <- "black"
 
 
+# count.tab <- read.table("~/data/Dmel/MNase/mapped_read_counts.txt",
+#                        header=F)
+
 count.tab <- read.table("~/data/Dmel/MNase/mapped_read_counts.txt",
                         header=F)
 
-lineages <- c("eye", "haltere", "leg", "antenna", "h1", "hmgd")
+lineages <- c("eye", "haltere", "leg", "antenna", "S2", "S2_in_vitro")
 n.lineage <- length(lineages)
 
 smooth.win <- 20
@@ -17,7 +20,7 @@ smooth.win <- 20
 
 for(expr.type in c("all", "low_expr", "mid_expr", "high_expr")) {
 
-  filename <- paste("~/data/Dmel/MNase/tss_mnase_midpoints.",
+  filename <- paste("~/data/Dmel/MNase_only/tss_mnase_midpoints.",
                     expr.type, ".txt", sep="")
 
   tab <- read.table(filename, header=T)

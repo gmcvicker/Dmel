@@ -11,14 +11,18 @@ import genome.gene
 import gene_expr as ge
 
 
-# LINEAGES = ['eye', 'haltere', 'leg', 'antenna', 'h1', 'hmgd', "S2"]
-LINEAGES = ['dnase']
+# TRACK_LIST = ['eye', 'haltere', 'leg', 'antenna', 'S2', 'S2_in_vitro']
+TRACK_LIST = ['S2_in_vitro_031212', 'S2_in_vitro_080110']
+# LINEAGES = ['dnase']
 
 MNASE_TRACKS = {'eye' : 'mnase/mnase_midpoints_eye_122_to_159',
                 'haltere' : 'mnase/mnase_midpoints_haltere_122_to_159',
                 'leg' : 'mnase/mnase_midpoints_leg_122_to_159',
                 'antenna' : 'mnase/mnase_midpoints_antenna_122_to_159',
                 'S2' : 'mnase/mnase_midpoints_S2_101_to_191',
+                'S2_in_vitro' : 'mnase/mnase_midpoints_S2_in_vitro_combined_101_to_191',
+                'S2_in_vitro_031212' : 'mnase/mnase_midpoints_S2_in_vitro_031212_101_to_191',
+                'S2_in_vitro_080110' : 'mnase/mnase_midpoints_S2_in_vitro_080110_101_to_191',
                 'h1' : 'H1/h1_midpoints_101_to_191_combined',
                 'hmgd' : 'HMGD/hmgd_midpoints_combined',
                 'dnase' : "dnase/dnase_S2"}
@@ -75,11 +79,11 @@ def main():
         gene_summary_f.write(" EXPR.%s EXPR.PCT.%s" % (expr_sample, expr_sample))
     gene_summary_f.write("\n")
     
-    for lineage in LINEAGES:
-        mnase_profiles[lineage] = np.zeros(n_sites, np.uint32)
-        mnase_tracks[lineage] = gdb.open_track(MNASE_TRACKS[lineage])
-        out_path = args.out_dir + "/" + lineage + ".txt"
-        mnase_out_f[lineage] = open(out_path, "w")
+    for t in TRACK_LIST:
+        mnase_profiles[t] = np.zeros(n_sites, np.uint32)
+        mnase_tracks[t] = gdb.open_track(MNASE_TRACKS[t])
+        out_path = args.out_dir + "/" + t + ".txt"
+        mnase_out_f[t] = open(out_path, "w")
                     
     n_gene = 0
     
@@ -114,18 +118,18 @@ def main():
 
             write_gene_summary(gene_summary_f, gene)
             
-            for lineage in LINEAGES:
-                track = mnase_tracks[lineage]
+            for t in TRACK_LIST:
+                track = mnase_tracks[t]
                 vals = track.get_nparray(chrom.name, start, end)
 
                 if gene.strand == -1:
                     vals = vals[::-1]
 
-                out_f = mnase_out_f[lineage]
+                out_f = mnase_out_f[t]
                 out_f.write(" ".join([str(x) for x in vals]) + "\n")
 
                 # write values for this gene
-                mnase_profiles[lineage] += vals
+                mnase_profiles[t] += vals
 
     
     # close output files

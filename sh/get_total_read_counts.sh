@@ -26,6 +26,14 @@ echo "hmgd $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
 COUNT=`python $SCRIPT --assembly dm3 mnase/mnase_midpoints_S2_101_to_191 | awk '{print $6}' | awk -F= '{print $2}'`
 echo "S2 $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
 
+COUNT=`python $SCRIPT --assembly dm3 mnase/mnase_midpoints_S2_in_vitro_combined_101_to_191 | awk '{print $6}' | awk -F= '{print $2}'`
+echo "S2_in_vitro $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
+
+COUNT=`python $SCRIPT --assembly dm3 mnase/mnase_midpoints_S2_in_vitro_031212_101_to_191 | awk '{print $6}' | awk -F= '{print $2}'`
+echo "S2_in_vitro_031212 $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
+
+COUNT=`python $SCRIPT --assembly dm3 mnase/mnase_midpoints_S2_in_vitro_080110_101_to_191 | awk '{print $6}' | awk -F= '{print $2}'`
+echo "S2_in_vitro_080110 $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
 
 COUNT=`python $SCRIPT --assembly dm3 dnase/dnase_S2 | awk '{print $6}' | awk -F= '{print $2}'`
 echo "dnase $COUNT" >> $HOME/data/Dmel/MNase/mapped_read_counts.txt
