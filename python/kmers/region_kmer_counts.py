@@ -10,19 +10,10 @@ import genome.coord
 
 KMER_SIZE=6
 
-            
-def get_total_counts(gdb, mnase_track, other_mnase_tracks):
-    stat = gdb.get_track_stat(mnase_track)
 
-    total = stat.sum
-    
-    other_total = 0
-    for other_track in other_mnase_tracks:
-        other_stat = gdb.get_track_stat(other_track)
-        other_total += other_stat.sum
-
-    return (total, other_total)
-
+#
+# Counts kmers occurances in a specified set of genomic regions, as well as genome-wide
+#
 
 
 
@@ -101,8 +92,6 @@ def main():
             obs_count = 0
             
         sys.stdout.write("%s %d %d\n" % (kmer_str, obs_count, all_count))
-        
-
         
 
 main()
