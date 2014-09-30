@@ -7,6 +7,7 @@ import genome.kmer
 
 import genome.db
 import genome.coord
+import gzip
 
 KMER_SIZE=6
 
@@ -23,7 +24,10 @@ def read_regions(filename, chrom_dict):
         coord_dict[chrom_name] = []
         
 
-    f = open(filename)
+    if filename.endswith(".gz"):
+        f = gzip.open(filename)
+    else:
+        f = open(filename)
 
     # skip header line if there is one
     first_line = f.readline()
@@ -92,6 +96,9 @@ def main():
             obs_count = 0
             
         sys.stdout.write("%s %d %d\n" % (kmer_str, obs_count, all_count))
+
+
+    seq_track.close()
         
 
 main()
