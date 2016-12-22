@@ -9,10 +9,10 @@ color.pal[6] <- "black"
 # count.tab <- read.table("~/data/Dmel/MNase/mapped_read_counts.txt",
 #                        header=F)
 
-count.tab <- read.table("~/data/Dmel/MNase/mapped_read_counts.txt",
+count.tab <- read.table("~/data/Dmel/mapped_read_counts.txt.gz",
                         header=F)
 
-lineages <- c("eye", "haltere", "leg", "antenna", "S2", "S2_in_vitro")
+lineages <- c("eye", "haltere", "leg", "antenna", "S2", "S2_in_vitro_031212")
 n.lineage <- length(lineages)
 
 smooth.win <- 20
@@ -20,8 +20,10 @@ smooth.win <- 20
 
 for(expr.type in c("all", "low_expr", "mid_expr", "high_expr")) {
 
-  filename <- paste("~/data/Dmel/MNase_only/tss_mnase_midpoints.",
-                    expr.type, ".txt", sep="")
+  pdf(paste("~/data/Dmel/tss_mnase_midpoints.", expr.type, ".pdf", sep=""), width=8, height=5)
+  
+  filename <- paste("~/data/Dmel/tss_mnase_midpoints.",
+                    expr.type, ".txt.gz", sep="")
 
   tab <- read.table(filename, header=T)
 
@@ -31,11 +33,11 @@ for(expr.type in c("all", "low_expr", "mid_expr", "high_expr")) {
 
 
   # ylim <- c(0, 0.00160)
-  ylim <- range(0, 50)
+  ylim <- range(0, 25)
 
   
   plot(x=c(0), y=c(0), type="n", ylim=ylim, xlim=c(-1000, 1000),
-       ylab="midpoints per site per billion mapped fragments",
+       ylab="FPKM",
        xlab="distance from TSS (bp)", las=1)
 
   for(i in 1:n.lineage) {
@@ -63,8 +65,7 @@ for(expr.type in c("all", "low_expr", "mid_expr", "high_expr")) {
   legend("topleft", col=color.pal[1:n.lineage],
          legend=lineages, lwd=rep(1, n.lineage))
 
-  # dev.off()
-
+  dev.off()
 }
 
 
@@ -73,7 +74,7 @@ for(expr.type in c("all", "low_expr", "mid_expr", "high_expr")) {
 
 
 
-
+###############
 
 
 
@@ -116,6 +117,11 @@ for(lin.idx in 1:length(lineages)) {
     peak.tab[[pos.label]] <- peak.pos
     peak.tab[[height.label]] <- peak.height
 }
+
+legend("topleft", legend=lineages,
+       pch=21, col=color.pal[1:length(lineages)])
+
+
 
 pdf("nucleosome_repeat_length_tss_dm3.pdf", width=6, height=6)
 

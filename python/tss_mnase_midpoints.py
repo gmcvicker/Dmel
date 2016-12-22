@@ -10,23 +10,39 @@ import genome.transcript
 import genome.gene
 
 
-GENES_PATH="/data/share/genes/dm3/flyBaseGene.txt"
+# GENES_PATH="/data/share/genes/dm3/flyBaseGene.txt"
+GENES_PATH = "/iblm/netapp/data1/external/Dmel/flyBaseGene.txt"
 
-LINEAGES = ['eye', 'haltere', 'leg', 'antenna', 'h1', 'hmgd']
+# LINEAGES = ['eye', 'haltere', 'leg', 'antenna', 'h1', 'hmgd']
 
-MNASE_TRACKS = {'eye' : 'mnase/mnase_midpoints_eye_122_to_159',
-                'haltere' : 'mnase/mnase_midpoints_haltere_122_to_159',
-                'leg' : 'mnase/mnase_midpoints_leg_122_to_159',
-                'antenna' : 'mnase/mnase_midpoints_antenna_122_to_159',
-                'h1' : 'H1/h1_midpoints_101_to_191_combined',
-                'hmgd' : 'HMGD/hmgd_midpoints_combined'}
+# MNASE_TRACKS = {'eye' : 'mnase/mnase_midpoints_eye_122_to_159',
+#                 'haltere' : 'mnase/mnase_midpoints_haltere_122_to_159',
+#                 'leg' : 'mnase/mnase_midpoints_leg_122_to_159',
+#                 'antenna' : 'mnase/mnase_midpoints_antenna_122_to_159',
+#                 'h1' : 'H1/h1_midpoints_101_to_191_combined',
+#                 'hmgd' : 'HMGD/hmgd_midpoints_combined'}
+
+LINEAGES = ['eye', 'haltere', 'leg', 'antenna', 'S2_in_vitro_031212', 'S2']
+MNASE_TRACKS = {'eye' : 'mnase/mnase_midpoints_eye_101_to_191',
+                'haltere' : 'mnase/mnase_midpoints_haltere_101_to_191',
+                'leg' : 'mnase/mnase_midpoints_leg_101_to_191',
+                'antenna' : 'mnase/mnase_midpoints_antenna_101_to_191',
+                'S2_in_vitro_031212' : 'mnase/mnase_midpoints_S2_in_vitro_031212_101_to_191',
+                'S2' : 'mnase/mnase_midpoints_S2_101_to_191'}
+
+
+
+
 
 FLANK = 1000
 
 HIGH_EXPR_PCT = 0.75
 LOW_EXPR_PCT = 0.25
 
-EXPR_FILE = "/mnt/lustre/home/gmcvicker/data/Dmel/mod_encode/rna_seq/transcript_rna_seq_counts.txt"
+# EXPR_FILE = "/mnt/lustre/home/gmcvicker/data/Dmel/mod_encode/rna_seq/transcript_rna_seq_counts.txt"
+
+
+EXPR_FILE = "/iblm/netapp/data1/external/Dmel/mod_encode/transcript_rna_seq_counts.txt"
 
 
 
@@ -58,6 +74,8 @@ def parse_args():
 
 
 def read_expr():
+
+    sys.stderr.write("reading expression from %s\n" % EXPR_FILE)
     f = open(EXPR_FILE)
 
     header = f.readline()
@@ -69,12 +87,16 @@ def read_expr():
 
         tr_id = words[0]
 
-        ttl_exon_len = float(words[5])
-        ttl_rna_seq_counts = sum(float(x) for x in words[6:])
+        #ttl_exon_len = float(words[6])
+        #ttl_rna_seq_counts = sum(float(x) for x in words[7:])
+        #expr = math.log((ttl_rna_seq_counts+1.0) / ttl_exon_len)
 
-        expr = math.log((ttl_rna_seq_counts+1.0) / ttl_exon_len)
+        rpkm = [float(x) for x in words[11:]]
+        expr = sum(rpkm) / len(rpkm)
 
         expr_dict[tr_id] = expr
+
+        sys.stderr.write("%s => %g\n" % (tr_id, expr))
 
     f.close()
 
@@ -89,15 +111,23 @@ def set_gene_tss_expr(genes):
         gene.tss_expr = None
         
         for tr in gene.transcripts:
-            if tr.name in tr_expr_dict:
+            # strip off trailing -RA -RB, etc
+            tr_name = tr.name.split("-")[0]
+            
+            if tr_name in tr_expr_dict:
                 if (tr.strand == 1 and tr.start == gene.start) or \
                     (tr.strand == -1 and tr.end == gene.end):
 
-                    expr = tr_expr_dict[tr.name]
+                    expr = tr_expr_dict[tr_name]
+
+                    sys.stderr.write("EXPR: %s\n" % expr)
                     
                     # transcript that starts at TSS
                     if (gene.tss_expr is None) or (expr > gene.tss_expr):
                         gene.tss_expr = expr
+            else:
+                sys.stderr.write("%s not found in expr dict\n" % tr_name)
+                        
 
     # now rank genes based on their expression
     genes = sorted(genes, key = lambda g: g.tss_expr)
@@ -192,6 +222,8 @@ def main():
         sys.stderr.write("%s\n" % chrom.name)
         genes = gene_dict[chrom.name]
 
+        sys.stderr.write("there are %s genes\n" % len(genes))
+        
         for gene in genes:
             if (gene.has_high_tss_expr is None) or \
                 (gene.has_low_tss_expr is None):
@@ -225,7 +257,6 @@ def main():
             # keep track of the number of genes examined
             n_gene += 1
 
-            
             for lineage in LINEAGES:
                 track = mnase_tracks[lineage]
                 vals = track.get_nparray(chrom.name, start, end)
